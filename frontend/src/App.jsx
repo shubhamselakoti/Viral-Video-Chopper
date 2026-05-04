@@ -25,6 +25,7 @@ function useCopy() {
 
 /* ── Helpers ────────────────────────────────────────────────────── */
 async function ping() {
+  const BASE_API =  import.meta.env.VITE_API_URL
   const t = Date.now();
   try { await fetch('/health', { signal: AbortSignal.timeout(28000) }); } catch {}
   return Date.now() - t;
