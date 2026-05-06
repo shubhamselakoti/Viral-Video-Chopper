@@ -24,7 +24,7 @@ AI finds the sharpest moments, writes hooks & captions, then cuts the exact MP4 
 
 <br/>
 
-[**Live Demo**](#-demo) · [**Quick Start**](#-quick-start) · [**API Docs**](#-api-reference) · [**Deploy**](#-deployment)
+[**Live Demo**](https://viral-video-chopper.netlify.app)
 
 <br/>
 
@@ -77,6 +77,16 @@ Paste a YouTube URL (or upload your own video file). In under **30 seconds**, yo
 </div>
 
 <br/>
+
+---
+## Architecture
+
+<img src="/product_images/viral_video_chopper_architecture.svg" alt="archiecture_image">
+
+---
+## Workflow
+
+<img src="/product_images/viral_video_chopper_flow.svg" alt="workflow_image">
 
 ---
 
