@@ -146,7 +146,7 @@ async function callGroq(prompt) {
         { role: 'user', content: prompt },
       ],
       temperature: 0.4,
-      max_tokens: 2500,
+      max_tokens: 1800,
     }),
   });
 

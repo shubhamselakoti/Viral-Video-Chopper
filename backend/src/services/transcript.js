@@ -1,8 +1,7 @@
-import { YoutubeTranscript } from 'youtube-transcript';
+const API_KEY = process.env.YOUTUBE_TRANSCRIPT_API;
 
 /**
  * Extracts the YouTube video ID from various URL formats.
- * Supports: youtu.be/ID, youtube.com/watch?v=ID, youtube.com/shorts/ID
  */
 export function extractVideoId(url) {
   try {
@@ -12,12 +11,14 @@ export function extractVideoId(url) {
     if (hostname === 'youtu.be') {
       return urlObj.pathname.slice(1).split('?')[0];
     }
+    
     if (hostname === 'youtube.com' || hostname === 'm.youtube.com') {
       if (urlObj.pathname.startsWith('/shorts/')) {
         return urlObj.pathname.split('/shorts/')[1].split('?')[0];
       }
       return urlObj.searchParams.get('v');
     }
+
     return null;
   } catch {
     return null;
@@ -25,27 +26,54 @@ export function extractVideoId(url) {
 }
 
 /**
- * Fetches and formats the YouTube transcript for a given video ID.
- * Returns transcript as a time-stamped text block ready for LLM consumption.
+ * Fetches and formats transcript using external API
  */
 export async function fetchTranscript(videoId) {
-  const raw = await YoutubeTranscript.fetchTranscript(videoId);
-
-  if (!raw || raw.length === 0) {
-    throw new Error('No transcript available for this video. It may be disabled or a live stream.');
+  if (!videoId) {
+    throw new Error("Invalid video ID");
   }
 
-  // Format: [MM:SS] text
-  const formatted = raw.map((entry) => {
-    const totalSeconds = Math.floor(entry.offset / 1000);
-    const minutes = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
-    const seconds = (totalSeconds % 60).toString().padStart(2, '0');
-    return `[${minutes}:${seconds}] ${entry.text}`;
-  }).join('\n');
+  const url = `https://transcriptapi.com/api/v2/youtube/transcript?video_url=${videoId}&format=json`;
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${process.env.YOUTUBE_TRANSCRIPT_API}`,
+    },
+  });
+
+  if (!res.ok) {
+    throw new Error(`Transcript API error: HTTP ${res.status}`);
+  }
+
+  const data = await res.json();
+
+  if (!data?.transcript || data.transcript.length === 0) {
+    throw new Error("No transcript available for this video.");
+  }
+
+  const formatted = data.transcript
+    .map((entry) => {
+      const totalSeconds = Math.floor(entry.start);
+      const minutes = Math.floor(totalSeconds / 60)
+        .toString()
+        .padStart(2, "0");
+      const seconds = (totalSeconds % 60)
+        .toString()
+        .padStart(2, "0");
+
+      return `[${minutes}:${seconds}] ${entry.text}`;
+    })
+    .join("\n");
 
   return {
     formatted,
-    duration: raw[raw.length - 1]?.offset / 1000 || 0,
-    wordCount: raw.reduce((acc, e) => acc + e.text.split(' ').length, 0),
+    duration:
+      (data.transcript.at(-1)?.start || 0) +
+      (data.transcript.at(-1)?.duration || 0),
+    wordCount: data.transcript.reduce(
+      (acc, e) => acc + e.text.split(/\s+/).length,
+      0
+    ),
+    title: data.metadata?.title || "Unknown Title",
+    language: data.language,
   };
 }
