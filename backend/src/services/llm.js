@@ -1,3 +1,4 @@
+import 'dotenv/config';
 /**
  * Free AI Provider Service
  * Supports: Hugging Face, Groq, OpenRouter
