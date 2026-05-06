@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="https://readme-typing-svg.demolab.com?font=Nunito&weight=900&size=42&pause=1000&color=6366F1&center=true&vCenter=true&width=600&height=80&lines=✂️+Viral+Video+Chopper;AI-Powered+Clip+Intelligence" alt="Viral Video Chopper" />
+<img src="product_images/title.svg" alt="Viral Video Chopper" />
 
 <br/>
 
